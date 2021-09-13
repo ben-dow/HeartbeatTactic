@@ -1,9 +1,9 @@
 # Heartbeat Tactic
 
-###Required Technologies
+### Required Technologies
 - Python3.X
 
-###How to Run
+## How to Run
 ```
 python main.py
 ```
