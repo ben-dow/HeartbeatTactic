@@ -1,13 +1,10 @@
 import os
 import sys
-from multiprocessing import Process, Queue
 import time
-import warnings
 from datetime import datetime
 from random import random
 from threading import Thread
 
-warnings.simplefilter("ignore")
 
 # DATASET FOR CAR
 object_distances = [random() for _ in range(10000000)] # Random Data
