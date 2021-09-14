@@ -1,45 +1,60 @@
+import os
 import sys
-import threading
+from multiprocessing import Process, Queue
 import time
+import warnings
 from datetime import datetime
+from random import random
+from threading import Thread
 
+warnings.simplefilter("ignore")
 
-class Monitoring():  # MONITORING
-    def __init__(self):
-        self.last_check_in = 0
-
-    def alive_alert(self, t):
-        self.last_check_in = t
-
-    def monitoring(self):
-        while True:
-            if self.last_check_in > time.time() - 1:
-                sys.stdout.write("\rProcess is Alive - " + str(datetime.fromtimestamp(self.last_check_in)))
-                sys.stdout.flush()
-            else:
-                sys.stdout.write("\rProcess is Dead")
-                sys.stdout.flush()
-                # PUT ALERTING FUNCTIONALITY HERE
-
+# DATASET FOR CAR
+object_distances = [random() for _ in range(10000000)] # Random Data
 
 def process(alive_alert):  # CRITICAL PROCESS
-    heartbeat_interval = .5
-    last_beat = 0
-
+    heartbeat_interval = .5 # Send Heartbeat every half second
+    last_beat = 0 #Last time a beat was sent
+    i = 0 # index of array
     while True:
         t = time.time()
         if last_beat < t - heartbeat_interval:
-            alive_alert(t)
+            alive_alert(t) # Send heartbeat before processing
             last_beat = t
 
-        # PUT CRASHING HERE
+        str(object_distances[i]) #Simulate Converting data into usable data for processing, will unexpectedly run out
+        i+=1 # Loop Through Data
 
 
-monitor = Monitoring()  # Create Monitoring Process
+class Monitoring:  # MONITORING
+    def __init__(self):
+        self.last_check_in = 0
 
-# Put Critical Process into Thread and give place to call for heartbeat
-p = threading.Thread(target=process, args=[monitor.alive_alert])
-p.start()
+    def start_critical_process(self): #For restarting Threads if they die
+        p = Thread(target=process, args=[self.alive_alert])
+        p.start()
 
-# Start Monitoring
-monitor.monitoring()
+    def alive_alert(self, t): # Where the process sends the heartbeat to
+        self.last_check_in = t
+
+    def monitoring(self): #Monitoring for the last beat
+        while True:
+            if self.last_check_in > time.time() - .75: # Process is alive if it has given a heartbeat in the last .75 seconds
+                sys.stdout.write("\rProcess is Alive - " + str(datetime.fromtimestamp(self.last_check_in)))
+                sys.stdout.flush()
+            else: # Process is dead if >.75 seconds passed from last heart beat
+                os.system('cls' if os.name == 'nt' else 'clear')# Clear the Terminal
+                sys.stdout.write("Process is Dead\n") #Announce Process is Dead
+                sys.stdout.write("Restarting in 1 Second\n") # Announce Restarting
+                time.sleep(1) #Sleep for 1 Second
+                self.start_critical_process() # Restart Process
+                os.system('cls' if os.name == 'nt' else 'clear') # Clear Terminal
+                sys.stdout.flush() #Flush Changes
+
+
+if __name__ == '__main__':
+    os.system('cls' if os.name == 'nt' else 'clear')# Clear Terminal
+    monitor = Monitoring()  # Create Monitoring Process
+    monitor.start_critical_process() #Start the First Process
+    monitor.monitoring() #Start Monitoring
+
