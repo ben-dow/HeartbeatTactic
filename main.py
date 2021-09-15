@@ -38,6 +38,7 @@ class Monitoring:  # MONITORING
     """
     def __init__(self):
         self.last_check_in = 0
+        self.checkingInterval = .75
 
     def start_critical_process(self):  # For restarting Threads if they die
         """
@@ -62,7 +63,7 @@ class Monitoring:  # MONITORING
 
         """
         while True:
-            if self.last_check_in > time.time() - .75:  # Process is alive if it has given a heartbeat in the last .75 seconds
+            if self.last_check_in > time.time() - self.checkingInterval:  # Process is alive if it has given a heartbeat in the last .75 seconds
                 sys.stdout.write("\rProcess is Alive - " + str(datetime.fromtimestamp(self.last_check_in)))
                 sys.stdout.flush()
             else:  # Process is dead if >.75 seconds passed from last heart beat
